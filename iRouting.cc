@@ -69,8 +69,8 @@ main (int argc, char *argv[])
 #endif
 
   // Set up some default values for the simulation.  Use the 
-  Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (210));
-  Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("448kb/s"));
+  //Config::SetDefault ("ns3::OnOffApplication::PacketSize", UintegerValue (210));
+  //Config::SetDefault ("ns3::OnOffApplication::DataRate", StringValue ("448kb/s"));
 
   //DefaultValue::Bind ("DropTailQueue::m_maxPackets", 30);
 
@@ -129,36 +129,37 @@ main (int argc, char *argv[])
   // 210 bytes at a rate of 448 Kb/s
   NS_LOG_INFO ("Create Applications.");
   
-  // Argomenti: protocollo, (destinatario, porta) ??
-  //OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port)));
-  //onoff.SetConstantRate (DataRate ("448kb/s"));
-  uint16_t port = 9;   // Discard port (RFC 863)
+  // Mittente FTP (server su nodo 0)
+  uint16_t port_ftp = 20;   // FTP data
   uint32_t maxBytes = 10000000;
-  BulkSendHelper source ("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port)));
+  BulkSendHelper source ("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_ftp)));
   source.SetAttribute ("MaxBytes", UintegerValue (maxBytes));
-  source.SetConstantRate (DataRate ("300Mbps"));
-  ApplicationContainer apps = source.Install (c.Get (0));
-  apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (10.0));
+  //source.SetConstantRate (DataRate ("300Mbps"));
+  ApplicationContainer app_ftp = source.Install (c.Get (0));
+  app_ftp.Start (Seconds (1.0));
+  app_ftp.Stop (Seconds (10.0));
 
-  // Create a packet sink to receive these packets
-  PacketSinkHelper sink ("ns3::TcpSocketFactory",
-                         Address (InetSocketAddress (Ipv4Address::GetAny (), port)));
-  apps = sink.Install (c.Get (3));
-  apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (10.0));
+  // Destinatario FTP (client su nodo 3)
+  PacketSinkHelper sink_ftp ("ns3::TcpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_ftp)));
+  app_ftp = sink_ftp.Install (c.Get (3));
+  app_ftp.Start (Seconds (1.0));
+  app_ftp.Stop (Seconds (11.0));
 
-  // Create a similar flow from n3 to n1, starting at time 1.1 seconds
-  //onoff.SetAttribute ("Remote", 
-                      //AddressValue (InetSocketAddress (i1i2.GetAddress (0), port)));
-  //apps = onoff.Install (c.Get (3));
-  //apps.Start (Seconds (1.1));
-  //apps.Stop (Seconds (10.0));
+  // Chiamante VoIP (client su nodo 1)
+  //OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port)));
+  OnOffHelper onoff ("ns3::UdpSocketFactory");
+  onoff.SetConstantRate (DataRate ("512kb/s"));
+  uint16_t port_voip = 5000;   // VoIP data
+  onoff.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip)));
+  ApplicationContainer app_voip = onoff.Install (c.Get (1));
+  app_voip.Start (Seconds (4.0));
+  app_voip.Stop (Seconds (12.0));
 
-  // Create a packet sink to receive these packets
-  //apps = sink.Install (c.Get (1));
-  //apps.Start (Seconds (1.1));
-  //apps.Stop (Seconds (10.0));
+  // Ricevente VoIP (client su nodo 3)
+  PacketSinkHelper sink_voip ("ns3::UdpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_voip)));
+  app_voip = sink_voip.Install (c.Get (3));
+  app_voip.Start (Seconds (1.0));
+  app_voip.Stop (Seconds (15.0));
 
   AsciiTraceHelper ascii;
   p2p.EnableAsciiAll (ascii.CreateFileStream ("iRouting.tr"));
@@ -172,7 +173,7 @@ main (int argc, char *argv[])
     }
 
   NS_LOG_INFO ("Run Simulation.");
-  Simulator::Stop (Seconds (11));
+  Simulator::Stop (Seconds (20.0));
   Simulator::Run ();
   NS_LOG_INFO ("Done.");
 
