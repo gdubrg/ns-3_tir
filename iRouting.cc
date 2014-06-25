@@ -148,6 +148,10 @@ main (int argc, char *argv[])
   // Chiamante VoIP (client su nodo 1)
   uint16_t port_voip = 5000;   // VoIP data
   OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip)));
+<<<<<<< HEAD
+=======
+  //OnOffHelper onoff ("ns3::UdpSocketFactory");
+>>>>>>> dfb0c8fcd5fa8f120b4b79f81bf08ca478cb0da7
   onoff.SetConstantRate (DataRate ("512kb/s"));
   onoff.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip)));
   ApplicationContainer app_voip = onoff.Install (c.Get (1));
@@ -155,7 +159,7 @@ main (int argc, char *argv[])
   app_voip.Stop (Seconds (12.0));
   //Connessione TCP di controllo Udp
   uint16_t port_voip_tcp = 5001;   
-  OnOffHelper onoff_voip_tcp("ns3::TcpSocketFactory");
+  OnOffHelper onoff_voip_tcp("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip_tcp)));
   onoff_voip_tcp.SetConstantRate (DataRate ("64kb/s"));
   onoff_voip_tcp.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip_tcp)));
   ApplicationContainer app_voip_tcp = onoff_voip_tcp.Install (c.Get (1));
