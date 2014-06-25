@@ -16,11 +16,11 @@
  */
 
 // TO-ASK LIST
-// 1 - va bene la topologia della rete?
+// 1 - è sufficiente la topologia della rete?
 // 2 - vanno bene i protocolli ?
-// 3 - il codice ha senso ?
-// 4 - grafici con wireshark ?
-//
+// 3 - [il codice ha senso ?]
+// 4 - grafici con wireshark ? istante di partenza?
+// 5- 
 //
 
 //
@@ -105,7 +105,7 @@ main (int argc, char *argv[])
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d1d2 = p2p.Install (n1n2);
   // Canale utente2<-->router
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("7Mbps"));
+  p2p.SetDeviceAttribute ("DataRate", StringValue ("512kbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d3d2 = p2p.Install (n3n2);
 
@@ -146,10 +146,9 @@ main (int argc, char *argv[])
   app_ftp.Stop (Seconds (11.0));
 
   // Chiamante VoIP (client su nodo 1)
-  //OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port)));
-  OnOffHelper onoff ("ns3::UdpSocketFactory");
-  onoff.SetConstantRate (DataRate ("512kb/s"));
   uint16_t port_voip = 5000;   // VoIP data
+  OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip)));
+  onoff.SetConstantRate (DataRate ("512kb/s"));
   onoff.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip)));
   ApplicationContainer app_voip = onoff.Install (c.Get (1));
   app_voip.Start (Seconds (4.0));
