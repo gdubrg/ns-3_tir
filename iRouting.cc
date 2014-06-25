@@ -97,7 +97,7 @@ main (int argc, char *argv[])
   NS_LOG_INFO ("Create channels.");
   PointToPointHelper p2p;
   // Canale server<-->router
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("500Mbps"));
+  p2p.SetDeviceAttribute ("DataRate", StringValue ("2Mbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("2ms"));
   NetDeviceContainer d0d2 = p2p.Install (n0n2);
   // Canale utente1<-->router
@@ -105,7 +105,7 @@ main (int argc, char *argv[])
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d1d2 = p2p.Install (n1n2);
   // Canale utente2<-->router
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("512kbps"));
+  p2p.SetDeviceAttribute ("DataRate", StringValue ("1Mbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d3d2 = p2p.Install (n3n2);
 
@@ -134,7 +134,6 @@ main (int argc, char *argv[])
   uint32_t maxBytes = 10000000;
   BulkSendHelper source ("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_ftp)));
   source.SetAttribute ("MaxBytes", UintegerValue (maxBytes));
-  //source.SetConstantRate (DataRate ("300Mbps"));
   ApplicationContainer app_ftp = source.Install (c.Get (0));
   app_ftp.Start (Seconds (1.0));
   app_ftp.Stop (Seconds (10.0));
@@ -148,7 +147,7 @@ main (int argc, char *argv[])
   // Chiamante VoIP (client su nodo 1)
   uint16_t port_voip = 5000;   // VoIP data
   OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip)));
-  onoff.SetConstantRate (DataRate ("512kb/s"));
+  onoff.SetConstantRate (DataRate ("1Mbps"));
   onoff.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip)));
   ApplicationContainer app_voip = onoff.Install (c.Get (1));
   app_voip.Start (Seconds (4.0));
@@ -156,12 +155,12 @@ main (int argc, char *argv[])
   //Connessione TCP di controllo Udp
   uint16_t port_voip_tcp = 5001;   
   OnOffHelper onoff_voip_tcp("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip_tcp)));
-  onoff_voip_tcp.SetConstantRate (DataRate ("64kb/s"));
+  onoff_voip_tcp.SetConstantRate (DataRate ("64kbps"));
   onoff_voip_tcp.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip_tcp)));
   ApplicationContainer app_voip_tcp = onoff_voip_tcp.Install (c.Get (1));
   //Inizia in contemporanea alla connessione Udp
-  app_voip_tcp.Start (Seconds (4.0));
-  app_voip_tcp.Stop (Seconds (12.0));
+  app_voip_tcp.Start (Seconds (3.0));
+  app_voip_tcp.Stop (Seconds (13.0));
 
   // Ricevente VoIP (client su nodo 3)
   PacketSinkHelper sink_voip ("ns3::UdpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_voip)));
