@@ -153,6 +153,15 @@ main (int argc, char *argv[])
   ApplicationContainer app_voip = onoff.Install (c.Get (1));
   app_voip.Start (Seconds (4.0));
   app_voip.Stop (Seconds (12.0));
+  //Connessione TCP di controllo Udp
+  uint16_t port_voip_tcp = 5001;   
+  OnOffHelper onoff_voip_tcp("ns3::TcpSocketFactory");
+  onoff_voip_tcp.SetConstantRate (DataRate ("64kb/s"));
+  onoff_voip_tcp.SetAttribute ("Remote", AddressValue (InetSocketAddress (i3i2.GetAddress(0), port_voip_tcp)));
+  ApplicationContainer app_voip_tcp = onoff_voip_tcp.Install (c.Get (1));
+  //Inizia in contemporanea alla connessione Udp
+  app_voip_tcp.Start (Seconds (4.0));
+  app_voip_tcp.Stop (Seconds (12.0));
 
   // Ricevente VoIP (client su nodo 3)
   PacketSinkHelper sink_voip ("ns3::UdpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_voip)));
