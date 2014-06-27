@@ -77,11 +77,15 @@ main (int argc, char *argv[])
   
   // Definizione porte
   uint16_t port_ftp = 20;         // FTP data
-  //uint32_t maxBytes = 10000000; //inutile?
+  uint32_t file_dim = 10000000; // 10Mb 
   
   // Mittente FTP (server su nodo 0)
   OnOffHelper onoff_ftp1("ns3::TcpSocketFactory", Address(InetSocketAddress (i2i1.GetAddress (0), port_ftp)));
   onoff_ftp1.SetConstantRate (DataRate ("5Mbps"));
+  onoff_ftp1.SetAttribute("PacketSize", UintegerValue(4096));
+  onoff_ftp1.SetAttribute("MaxBytes", UintegerValue(file_dim)); // 10 Mb
+  onoff_ftp1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+  onoff_ftp1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   ApplicationContainer ftp_server1 = onoff_ftp1.Install (c.Get (0));
   ftp_server1.Start(Seconds(0.0));
   ftp_server1.Stop(Seconds(11.0)); 
@@ -95,6 +99,9 @@ main (int argc, char *argv[])
   // Mittente FTP (server su nodo 2)
   OnOffHelper onoff_ftp2("ns3::TcpSocketFactory", Address(InetSocketAddress (i0i1.GetAddress (0), port_ftp)));
   onoff_ftp2.SetConstantRate (DataRate ("2Mbps"));
+  onoff_ftp2.SetAttribute("PacketSize", UintegerValue(256));
+  onoff_ftp2.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+  onoff_ftp2.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   ApplicationContainer ftp_server2 = onoff_ftp2.Install (c.Get (2));
   ftp_server2.Start(Seconds(0.0));
   ftp_server2.Stop(Seconds(11.0)); 
@@ -106,8 +113,8 @@ main (int argc, char *argv[])
   ftp_client2.Stop (Seconds (15.0));
 
   AsciiTraceHelper ascii;
-  p2p.EnableAsciiAll (ascii.CreateFileStream ("iRouting_AQM_top2.tr"));
-  p2p.EnablePcapAll ("iRouting_AQM_top2");
+  p2p.EnableAsciiAll (ascii.CreateFileStream ("AQM_top2.tr"));
+  p2p.EnablePcapAll ("AQM_top2");
 
   // Flow Monitor
   FlowMonitorHelper flowmonHelper;
