@@ -57,7 +57,7 @@ main (int argc, char *argv[])
   p2p.SetDeviceAttribute ("DataRate", StringValue ("7Mbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d2d1 = p2p.Install (n2n1);
-  Ptr<NetDevice> dev_ptr = d2d1.Get(1);
+  Ptr<NetDevice> dev_ptr = d2d1.Get(0);
   // è l'interfaccia giusta? controllo a che nodo è associata
   Ptr<Node> nodo_associato = dev_ptr->GetNode();
   std::cout << "ID: " << nodo_associato->GetId() << std::endl;
@@ -92,14 +92,14 @@ main (int argc, char *argv[])
   onoff_ftp1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
   onoff_ftp1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   ApplicationContainer ftp_server1 = onoff_ftp1.Install (c.Get (0));
-  ftp_server1.Start(Seconds(4.0));
-  ftp_server1.Stop(Seconds(11.0)); 
+  ftp_server1.Start(Seconds(0.0));
+  ftp_server1.Stop(Seconds(15.0)); 
   
   // Destinatario FTP (client su nodo 2)
   PacketSinkHelper sink_ftp1 ("ns3::TcpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_ftp)));
   ApplicationContainer ftp_client1 = sink_ftp1.Install (c.Get (2));
   ftp_client1.Start (Seconds (0.0));
-  ftp_client1.Stop (Seconds (15.0));
+  ftp_client1.Stop (Seconds (18.0));
 
   // Mittente FTP (server su nodo 2)
   OnOffHelper onoff_ftp2("ns3::TcpSocketFactory", Address(InetSocketAddress (i0i1.GetAddress (0), port_ftp2)));
@@ -115,7 +115,7 @@ main (int argc, char *argv[])
   PacketSinkHelper sink_ftp2 ("ns3::TcpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_ftp2)));
   ApplicationContainer ftp_client2 = sink_ftp2.Install (c.Get (0));
   ftp_client2.Start (Seconds (0.0));
-  ftp_client2.Stop (Seconds (15.0));
+  ftp_client2.Stop (Seconds (18.0));
 
   AsciiTraceHelper ascii;
   p2p.EnableAsciiAll (ascii.CreateFileStream ("AQM_top2.tr"));
