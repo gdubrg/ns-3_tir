@@ -108,7 +108,7 @@ main (int argc, char *argv[])
   onoff_ftp2.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
   onoff_ftp2.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0]"));
   ApplicationContainer ftp_server2 = onoff_ftp2.Install (c.Get (2));
-  ftp_server2.Start(Seconds(0.0));
+  ftp_server2.Start(Seconds(5.0));
   ftp_server2.Stop(Seconds(15.0)); 
   
   // Destinatario FTP (client su nodo 0)
