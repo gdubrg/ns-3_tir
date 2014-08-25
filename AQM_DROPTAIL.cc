@@ -12,6 +12,7 @@
 #include "ns3/ipv4-global-routing-helper.h"
 
 using namespace ns3;
+using namespace std;
 
 NS_LOG_COMPONENT_DEFINE ("SimpleGlobalRoutingExample");
 
@@ -131,6 +132,22 @@ main (int argc, char *argv[])
   Simulator::Stop (Seconds (13.0));
   Simulator::Run ();
   NS_LOG_INFO ("Done.");
+  
+  // --------------- CONTEGGIO BYTE APPLICAZIONI -----------------------
+  uint32_t totalRxBytesCounter_ftp1 = 0;
+  uint32_t totalRxBytesCounter_ftp2 = 0;
+  
+  //Applicazione FTP 1
+  Ptr <Application> app1 = ftp_client1.Get (0);
+  Ptr <PacketSink> pktSink1 = DynamicCast <PacketSink> (app1);
+  totalRxBytesCounter_ftp1 += pktSink1->GetTotalRx ();
+  cout << "Goodput FTP1: " << (totalRxBytesCounter_ftp1/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
+  
+  //Applicazione FTP 2
+  Ptr <Application> app2 = ftp_client2.Get (0);
+  Ptr <PacketSink> pktSink2 = DynamicCast <PacketSink> (app2);
+  totalRxBytesCounter_ftp2 += pktSink2->GetTotalRx ();
+  cout << "Goodput FTP2: " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
 
   if (enableFlowMonitor){
       flowmonHelper.SerializeToXmlFile ("simple-global-routing.flowmon", false, false);
