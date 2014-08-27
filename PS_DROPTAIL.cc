@@ -129,8 +129,8 @@ main (int argc, char *argv[])
   app_voip_ctrl.Stop (Seconds (14.0));
 
   AsciiTraceHelper ascii;
-  p2p.EnableAsciiAll (ascii.CreateFileStream ("PS.tr"));
-  p2p.EnablePcapAll ("PS");
+  p2p.EnableAsciiAll (ascii.CreateFileStream ("PS_DROPTAIL.tr"));
+  p2p.EnablePcapAll ("PS_DROPTAIL");
 
   // Flow Monitor
   FlowMonitorHelper flowmonHelper;
