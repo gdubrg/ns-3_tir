@@ -12,12 +12,14 @@
 #include "ns3/ipv4-global-routing-helper.h"
 
 using namespace ns3;
+using namespace std;
 
 NS_LOG_COMPONENT_DEFINE ("SimpleGlobalRoutingExample");
 
 int 
 main (int argc, char *argv[])
 {
+	
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 
@@ -40,17 +42,16 @@ main (int argc, char *argv[])
   c.Create (4);
   NodeContainer n0n2 = NodeContainer (c.Get (0), c.Get (2));
   NodeContainer n1n2 = NodeContainer (c.Get (1), c.Get (2));
-  NodeContainer n3n2 = NodeContainer (c.Get (3), c.Get (2));
+  NodeContainer n3n2 = NodeContainer (c.Get (3), c.Get (2)); 		//?
 
   InternetStackHelper internet;
   internet.Install (c);
   
-
   // -------------------- CREAZIONE CANALI -----------------------------
   NS_LOG_INFO ("Create channels.");
   PointToPointHelper p2p;
   // Canale server<-->router
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
+  p2p.SetDeviceAttribute ("DataRate", StringValue ("500Mbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("2ms"));
   NetDeviceContainer d0d2 = p2p.Install (n0n2);
   // Canale utente1<-->router
@@ -60,7 +61,7 @@ main (int argc, char *argv[])
   // Canale utente2<-->router
   p2p.SetDeviceAttribute ("DataRate", StringValue ("1Mbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
-  NetDeviceContainer d3d2 = p2p.Install (n3n2);
+  NetDeviceContainer d3d2 = p2p.Install (n3n2); 					//?
   
 
   // ----------------- ASSEGNAZIONE INDIRIZZI --------------------------
@@ -73,7 +74,7 @@ main (int argc, char *argv[])
   Ipv4InterfaceContainer i1i2 = ipv4.Assign (d1d2);
 
   ipv4.SetBase ("10.1.3.0", "255.255.255.0");
-  Ipv4InterfaceContainer i3i2 = ipv4.Assign (d3d2);
+  Ipv4InterfaceContainer i3i2 = ipv4.Assign (d3d2); 				//?
   
 
   // ------------------- TABELLE DI ROUTING ----------------------------
@@ -91,7 +92,7 @@ main (int argc, char *argv[])
   
   // Mittente FTP (server su nodo 0)
   OnOffHelper onoff_ftp("ns3::TcpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_ftp)));
-  onoff_ftp.SetConstantRate (DataRate ("2Mbps"));
+  onoff_ftp.SetConstantRate (DataRate ("5Mbps"));
   ApplicationContainer ftp_server = onoff_ftp.Install (c.Get (0));
   ftp_server.Start(Seconds(0.0));
   ftp_server.Stop(Seconds(11.0)); 
@@ -100,7 +101,7 @@ main (int argc, char *argv[])
   PacketSinkHelper sink_ftp ("ns3::TcpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_ftp)));
   ApplicationContainer ftp_client = sink_ftp.Install (c.Get (3));
   ftp_client.Start (Seconds (0.0));
-  ftp_client.Stop (Seconds (15.0));
+  ftp_client.Stop (Seconds (14.0));
 
   // Chiamante VoIP (client su nodo 1)
   OnOffHelper onoff ("ns3::UdpSocketFactory", Address(InetSocketAddress (i3i2.GetAddress (0), port_voip)));
@@ -121,16 +122,16 @@ main (int argc, char *argv[])
   PacketSinkHelper sink_voip ("ns3::UdpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_voip)));
   app_voip = sink_voip.Install (c.Get (3));
   app_voip.Start (Seconds (0.0));
-  app_voip.Stop (Seconds (15.0));
+  app_voip.Stop (Seconds (14.0));
   // Ricevente VoIP (client su nodo 3) [connessione di controllo]
   PacketSinkHelper sink_voip_ctrl ("ns3::TcpSocketFactory", Address (InetSocketAddress (Ipv4Address::GetAny (), port_voip_ctrl)));
   app_voip_ctrl = sink_voip_ctrl.Install (c.Get (3));
   app_voip_ctrl.Start (Seconds (0.0));
-  app_voip_ctrl.Stop (Seconds (15.0));
+  app_voip_ctrl.Stop (Seconds (14.0));
 
   AsciiTraceHelper ascii;
-  p2p.EnableAsciiAll (ascii.CreateFileStream ("iRouting_PS.tr"));
-  p2p.EnablePcapAll ("iRouting_PS");
+  p2p.EnableAsciiAll (ascii.CreateFileStream ("PS.tr"));
+  p2p.EnablePcapAll ("PS");
 
   // Flow Monitor
   FlowMonitorHelper flowmonHelper;
@@ -139,13 +140,10 @@ main (int argc, char *argv[])
   }
 
   NS_LOG_INFO ("Run Simulation.");
-  Simulator::Stop (Seconds (20.0));
+  Simulator::Stop (Seconds (15.0));
   Simulator::Run ();
   NS_LOG_INFO ("Done.");
 
-  if (enableFlowMonitor){
-      flowmonHelper.SerializeToXmlFile ("simple-global-routing.flowmon", false, false);
-  }
 
   Simulator::Destroy ();
   return 0;

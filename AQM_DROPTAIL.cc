@@ -49,6 +49,7 @@ main (int argc, char *argv[])
   // -------------------- CREAZIONE CANALI -----------------------------
   NS_LOG_INFO ("Create channels.");
   PointToPointHelper p2p;
+  
   // Canale nodo1<-->router
   p2p.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
   p2p.SetChannelAttribute ("Delay", StringValue ("2ms"));
@@ -59,6 +60,7 @@ main (int argc, char *argv[])
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d2d1 = p2p.Install (n2n1);
   Ptr<NetDevice> dev_ptr = d2d1.Get(0);
+  
   // è l'interfaccia giusta? controllo a che nodo è associata
   Ptr<Node> nodo_associato = dev_ptr->GetNode();
   std::cout << "ID: " << nodo_associato->GetId() << std::endl;
@@ -148,10 +150,6 @@ main (int argc, char *argv[])
   Ptr <PacketSink> pktSink2 = DynamicCast <PacketSink> (app2);
   totalRxBytesCounter_ftp2 += pktSink2->GetTotalRx ();
   cout << "Goodput FTP2: " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
-
-  if (enableFlowMonitor){
-      flowmonHelper.SerializeToXmlFile ("simple-global-routing.flowmon", false, false);
-  }
 
   Simulator::Destroy ();
   return 0;
