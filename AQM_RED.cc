@@ -48,28 +48,28 @@ main (int argc, char *argv[])
 
   // -------------------- CREAZIONE CANALI -----------------------------
   NS_LOG_INFO ("Create channels.");
-  PointToPointHelper p2p;
+  PointToPointHelper p2p1;
   // Canale nodo1<-->router
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
-  p2p.SetChannelAttribute ("Delay", StringValue ("2ms"));
-  NetDeviceContainer d0d1 = p2p.Install (n0n1);
+  p2p1.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
+  p2p1.SetChannelAttribute ("Delay", StringValue ("2ms"));
+  NetDeviceContainer d0d1 = p2p1.Install (n0n1);
   
+  PointToPointHelper p2p2;
   // Canale router<-->nodo2
-  p2p.SetDeviceAttribute ("DataRate", StringValue ("7Mbps"));
-  p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
+  p2p2.SetDeviceAttribute ("DataRate", StringValue ("7Mbps"));
+  p2p2.SetChannelAttribute ("Delay", StringValue ("10ms"));
   
   
   double      minTh = 20;
   double      maxTh = 80;
-  p2p.SetQueue ("ns3::RedQueue",
+  p2p2.SetQueue ("ns3::RedQueue",
                  "MinTh", DoubleValue (minTh),
                  "MaxTh", DoubleValue (maxTh),
                  "LinkBandwidth", StringValue ("7Mbps"),
                  "LinkDelay", StringValue ("10ms"));
+                               
                  
-                 
-                 
-  NetDeviceContainer d2d1 = p2p.Install (n2n1);
+  NetDeviceContainer d2d1 = p2p2.Install (n2n1);
   Ptr<NetDevice> dev_ptr = d2d1.Get(0);
   // è l'interfaccia giusta? controllo a che nodo è associata
   Ptr<Node> nodo_associato = dev_ptr->GetNode();
@@ -131,8 +131,11 @@ main (int argc, char *argv[])
   ftp_client2.Stop (Seconds (12.0));
 
   AsciiTraceHelper ascii;
-  p2p.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED.tr"));
-  p2p.EnablePcapAll ("AQM_RED");
+  p2p1.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED1.tr"));
+  p2p1.EnablePcapAll ("AQM_RED1");
+  
+  p2p2.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED2.tr"));
+  p2p2.EnablePcapAll ("AQM_RED2");
 
   // Flow Monitor
   FlowMonitorHelper flowmonHelper;
@@ -162,9 +165,6 @@ main (int argc, char *argv[])
   totalRxBytesCounter_ftp2 += pktSink2->GetTotalRx ();
   cout << "Goodput FTP2: " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
   
-  if (enableFlowMonitor){
-      flowmonHelper.SerializeToXmlFile ("simple-global-routing.flowmon", false, false);
-  }
   
   //Fine della simulazione
   Simulator::Destroy ();
