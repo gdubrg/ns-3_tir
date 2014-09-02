@@ -137,7 +137,7 @@ int main (int argc, char *argv[])
   ftp_client2.Stop (Seconds (12.0));
 
   AsciiTraceHelper ascii;
-  if(queueType == RED){
+  if(queueType == "RED"){
 	p2p1.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED1.tr"));
 	p2p1.EnablePcapAll ("AQM_RED1");
   
@@ -164,13 +164,13 @@ int main (int argc, char *argv[])
   Ptr <Application> app1 = ftp_client1.Get (0);
   Ptr <PacketSink> pktSink1 = DynamicCast <PacketSink> (app1);
   totalRxBytesCounter_ftp1 += pktSink1->GetTotalRx ();
-  cout << "Goodput FTP1: " << (totalRxBytesCounter_ftp1/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
+  cout << "Goodput FTP1 (n0 --> n2): " << (totalRxBytesCounter_ftp1/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
   
   //Applicazione FTP 2
   Ptr <Application> app2 = ftp_client2.Get (0);
   Ptr <PacketSink> pktSink2 = DynamicCast <PacketSink> (app2);
   totalRxBytesCounter_ftp2 += pktSink2->GetTotalRx ();
-  cout << "Goodput FTP2: " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
+  cout << "Goodput FTP2 (n2 --> n0): " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
   cout << endl;
   
   //Fine della simulazione

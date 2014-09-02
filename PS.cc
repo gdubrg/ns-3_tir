@@ -64,7 +64,14 @@ main (int argc, char *argv[])
   p2p.SetChannelAttribute ("Delay", StringValue ("10ms"));
   NetDeviceContainer d3d2 = p2p.Install (n3n2); 					//?
   
-
+  double      minTh = 20;
+  double      maxTh = 80;
+  p2p.SetQueue ("ns3::MyQueue",
+					 "MinTh", DoubleValue (minTh),
+					 "MaxTh", DoubleValue (maxTh),
+					 "LinkBandwidth", StringValue ("7Mbps"),
+					 "LinkDelay", StringValue ("10ms"));
+					 
   // ----------------- ASSEGNAZIONE INDIRIZZI --------------------------
   NS_LOG_INFO ("Assign IP Addresses.");
   Ipv4AddressHelper ipv4;
