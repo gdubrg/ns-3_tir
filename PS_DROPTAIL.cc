@@ -20,6 +20,7 @@ int
 main (int argc, char *argv[])
 {
 	
+  cout << "Simulazione PS: DROPTAIL" << endl;
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 

@@ -16,9 +16,11 @@ using namespace std;
 
 NS_LOG_COMPONENT_DEFINE ("SimpleGlobalRoutingExample");
 
-int 
-main (int argc, char *argv[])
+int main (int argc, char *argv[])
 {
+	
+  cout << "Simulazione AQM: DROPTAIL" << endl;
+  
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 
@@ -63,7 +65,7 @@ main (int argc, char *argv[])
   
   // è l'interfaccia giusta? controllo a che nodo è associata
   Ptr<Node> nodo_associato = dev_ptr->GetNode();
-  std::cout << "ID: " << nodo_associato->GetId() << std::endl;
+  std::cout << "ID bottleneck: " << nodo_associato->GetId() << std::endl;
   dev_ptr->SetAttribute("DataRate", StringValue ("64kbps"));
   
   // ----------------- ASSEGNAZIONE INDIRIZZI --------------------------
