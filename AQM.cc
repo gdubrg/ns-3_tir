@@ -19,25 +19,29 @@ NS_LOG_COMPONENT_DEFINE ("SimpleGlobalRoutingExample");
 
 int main (int argc, char *argv[])
 {
-
-  cout << "Simulazione AQM: RED" << endl;
+  string queueType = "";
+  
+  CommandLine cmd;
+  cmd.AddValue ("alg", "Set Queue type to DropTail or RED", queueType);
+  cmd.Parse (argc,argv);
+   
+  if ((queueType != "RED") && (queueType != "DROPTAIL")) {
+     cout << "Invalid queue type: Use --queueType=RED or --queueType=DROPTAIL" << endl;
+     return 0;
+  }
+  
+  cout << "Simulazione AQM: " << queueType << endl << endl;
+  cout << "Network topology:" << endl;
+  cout << "n0 --------------------------- n1 --------------------------- n2" << endl;
+  cout << "            1Gbps, 2ms             7Mbps DL, 64kbps UL, 10ms" << endl;
+  cout << endl;
   
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 
   LogComponentEnable ("SimpleGlobalRoutingExample", LOG_LEVEL_INFO);
 #endif
-
-  //DefaultValue::Bind ("DropTailQueue::m_maxPackets", 30);
-
-  // Allow the user to override any of the defaults and the above
-  // DefaultValue::Bind ()s at run-time, via command-line arguments
-  CommandLine cmd;
-  bool enableFlowMonitor = false;
-  cmd.AddValue ("EnableMonitor", "Enable Flow Monitor", enableFlowMonitor);
-  cmd.Parse (argc, argv);
   
-
   // --------------------- CREAZIONE NODI ------------------------------
   NS_LOG_INFO ("Create nodes.");
   NodeContainer c;
@@ -47,7 +51,6 @@ int main (int argc, char *argv[])
 
   InternetStackHelper internet;
   internet.Install (c);
-  
 
   // -------------------- CREAZIONE CANALI -----------------------------
   NS_LOG_INFO ("Create channels.");
@@ -62,16 +65,16 @@ int main (int argc, char *argv[])
   p2p2.SetDeviceAttribute ("DataRate", StringValue ("7Mbps"));
   p2p2.SetChannelAttribute ("Delay", StringValue ("10ms"));
   
-  
-  double      minTh = 20;
-  double      maxTh = 80;
-  p2p2.SetQueue ("ns3::RedQueue",
-                 "MinTh", DoubleValue (minTh),
-                 "MaxTh", DoubleValue (maxTh),
-                 "LinkBandwidth", StringValue ("7Mbps"),
-                 "LinkDelay", StringValue ("10ms"));
-                               
-                 
+  if (queueType == "RED") {
+	  double      minTh = 20;
+	  double      maxTh = 80;
+	  p2p2.SetQueue ("ns3::RedQueue",
+					 "MinTh", DoubleValue (minTh),
+					 "MaxTh", DoubleValue (maxTh),
+					 "LinkBandwidth", StringValue ("7Mbps"),
+					 "LinkDelay", StringValue ("10ms"));                              
+  }
+             
   NetDeviceContainer d2d1 = p2p2.Install (n2n1);
   Ptr<NetDevice> dev_ptr = d2d1.Get(0);
   // è l'interfaccia giusta? controllo a che nodo è associata
@@ -134,23 +137,24 @@ int main (int argc, char *argv[])
   ftp_client2.Stop (Seconds (12.0));
 
   AsciiTraceHelper ascii;
-  p2p1.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED1.tr"));
-  p2p1.EnablePcapAll ("AQM_RED1");
+  if(queueType == RED){
+	p2p1.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED1.tr"));
+	p2p1.EnablePcapAll ("AQM_RED1");
   
-  p2p2.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED2.tr"));
-  p2p2.EnablePcapAll ("AQM_RED2");
-
-  // Flow Monitor
-  FlowMonitorHelper flowmonHelper;
-  if (enableFlowMonitor){
-      flowmonHelper.InstallAll();
+	p2p2.EnableAsciiAll (ascii.CreateFileStream ("AQM_RED2.tr"));
+	p2p2.EnablePcapAll ("AQM_RED2");
+  } else {
+	p2p1.EnableAsciiAll (ascii.CreateFileStream ("AQM_DROPTAIL1.tr"));
+	p2p1.EnablePcapAll ("AQM_DROPTAIL1");
+  
+	p2p2.EnableAsciiAll (ascii.CreateFileStream ("AQM_DROPTAIL2.tr"));
+	p2p2.EnablePcapAll ("AQM_DROPTAIL2");
   }
 
   NS_LOG_INFO ("Run Simulation.");
   Simulator::Stop (Seconds (13.0));
   Simulator::Run ();
-  NS_LOG_INFO ("Done.");
-  
+  NS_LOG_INFO ("Done."); 
   
   // --------------- CONTEGGIO BYTE APPLICAZIONI -----------------------
   uint32_t totalRxBytesCounter_ftp1 = 0;
@@ -167,7 +171,7 @@ int main (int argc, char *argv[])
   Ptr <PacketSink> pktSink2 = DynamicCast <PacketSink> (app2);
   totalRxBytesCounter_ftp2 += pktSink2->GetTotalRx ();
   cout << "Goodput FTP2: " << (totalRxBytesCounter_ftp2/Simulator::Now ().GetSeconds ())/1000 << " kB/s" << endl;
-  
+  cout << endl;
   
   //Fine della simulazione
   Simulator::Destroy ();

@@ -20,7 +20,16 @@ int
 main (int argc, char *argv[])
 {
 	
-  cout << "Simulazione PS: DROPTAIL" << endl;
+  cout << "Simulazione PS: DROPTAIL" << endl << endl;
+  cout << "Network topology:" << endl;
+  cout << "  n0" << endl;
+  cout << "    \\ 500 Mb/s, 2ms" << endl;
+  cout << "     \\           7Mb/s, 10ms" << endl;
+  cout << "      n2 ------------------------- n3" << endl;
+  cout << "     /" << endl;
+  cout << "    / 7 Mb/s, 10ms" << endl;
+  cout << "  n1" << endl << endl;
+  
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 
