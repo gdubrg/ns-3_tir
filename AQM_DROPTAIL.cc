@@ -19,8 +19,19 @@ NS_LOG_COMPONENT_DEFINE ("SimpleGlobalRoutingExample");
 int main (int argc, char *argv[])
 {
 	
+  string queueType = "DropTail";
   cout << "Simulazione AQM: DROPTAIL" << endl;
   
+   CommandLine cmd;
+   cmd.AddValue ("queueType", "Set Queue type to DropTail or RED", queueType);
+   cmd.Parse (argc,argv);
+   
+   if ((queueType != "RED") && (queueType != "DropTail"))
+    {
+      cout << "Invalid queue type: Use --queueType=RED or --queueType=DropTail" << endl;
+      return 0;
+    }
+    
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
 #if 0 
@@ -31,10 +42,6 @@ int main (int argc, char *argv[])
 
   // Allow the user to override any of the defaults and the above
   // DefaultValue::Bind ()s at run-time, via command-line arguments
-  CommandLine cmd;
-  bool enableFlowMonitor = false;
-  cmd.AddValue ("EnableMonitor", "Enable Flow Monitor", enableFlowMonitor);
-  cmd.Parse (argc, argv);
   
 
   // --------------------- CREAZIONE NODI ------------------------------
@@ -126,11 +133,6 @@ int main (int argc, char *argv[])
   p2p.EnableAsciiAll (ascii.CreateFileStream ("AQM_DROPTAIL.tr"));
   p2p.EnablePcapAll ("AQM_DROPTAIL");
 
-  // Flow Monitor
-  FlowMonitorHelper flowmonHelper;
-  if (enableFlowMonitor){
-      flowmonHelper.InstallAll();
-  }
 
   NS_LOG_INFO ("Run Simulation.");
   Simulator::Stop (Seconds (13.0));
